@@ -76,17 +76,17 @@ button {
   <div class="products">
 
     <div class="card">
-      🥔 Potato<br>₹25/kg
+      🥔 Potato<br>₹10/kg
       <button onclick="addToCart('Potato',25)">Add</button>
     </div>
 
     <div class="card">
-      🍅 Tomato<br>₹35/kg
+      🍅 Tomato<br>₹15/kg
       <button onclick="addToCart('Tomato',35)">Add</button>
     </div>
 
     <div class="card">
-      🧅 Onion<br>₹30/kg
+      🧅 Onion<br>₹20/kg
       <button onclick="addToCart('Onion',30)">Add</button>
     </div>
 
@@ -146,7 +146,7 @@ function checkout() {
     return;
   }
 
-  let phone = "91XXXXXXXXXX"; // CHANGE NUMBER
+  let phone = "918895690516"; // CHANGE NUMBER
   let upi = "upi://pay?pa=YOURUPI@upi&pn=ZenvoraX&am=" + total;
 
   let msg = "Order: " + cart.join(", ") + " Total ₹" + total;
