@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZenvoraX</title>
+
+<style>
+body {
+  font-family: Arial;
+  margin: 0;
+  background: #f4fff4;
+}
+
+header {
+  background: #0a8f3c;
+  color: white;
+  padding: 15px;
+  text-align: center;
+}
+
+.container {
+  padding: 15px;
+}
+
+.products {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+}
+
+.card {
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+button {
+  background: #0a8f3c;
+  color: white;
+  border: none;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 5px;
+}
+
+.cart {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: #0a8f3c;
+  color: white;
+  text-align: center;
+  padding: 15px;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+  <h2>ZenvoraX</h2>
+  <p>Fresh Groceries Delivered Fast</p>
+</header>
+
+<div class="container">
+
+  <h3>🔥 Recommended</h3>
+  <div id="recommend"></div>
+
+  <h3>Products</h3>
+
+  <div class="products">
+
+    <div class="card">
+      🥔 Potato<br>₹25/kg
+      <button onclick="addToCart('Potato',25)">Add</button>
+    </div>
+
+    <div class="card">
+      🍅 Tomato<br>₹35/kg
+      <button onclick="addToCart('Tomato',35)">Add</button>
+    </div>
+
+    <div class="card">
+      🧅 Onion<br>₹30/kg
+      <button onclick="addToCart('Onion',30)">Add</button>
+    </div>
+
+    <div class="card">
+      🍌 Banana<br>₹40/kg
+      <button onclick="addToCart('Banana',40)">Add</button>
+    </div>
+
+  </div>
+
+</div>
+
+<div class="cart" onclick="checkout()">
+  🛒 Cart: ₹<span id="total">0</span> (Tap to Order)
+</div>
+
+<script>
+
+let cart = [];
+let total = 0;
+
+// ADD TO CART
+function addToCart(item, price) {
+  cart.push(item);
+  total += price;
+  document.getElementById("total").innerText = total;
+
+  // Save history (AI)
+  let history = JSON.parse(localStorage.getItem("history") || "[]");
+  history.push(item);
+  localStorage.setItem("history", JSON.stringify(history));
+
+  recommend();
+}
+
+// AI RECOMMEND
+function recommend() {
+  let history = JSON.parse(localStorage.getItem("history") || "[]");
+  let freq = {};
+
+  history.forEach(item => {
+    freq[item] = (freq[item] || 0) + 1;
+  });
+
+  let top = Object.keys(freq).sort((a,b) => freq[b] - freq[a])[0];
+
+  if(top) {
+    document.getElementById("recommend").innerHTML =
+      "<div class='card'>🔥 You may like " + top + "</div>";
+  }
+}
+
+// CHECKOUT
+function checkout() {
+  if(cart.length === 0) {
+    alert("Cart empty");
+    return;
+  }
+
+  let phone = "91XXXXXXXXXX"; // CHANGE NUMBER
+  let upi = "upi://pay?pa=YOURUPI@upi&pn=ZenvoraX&am=" + total;
+
+  let msg = "Order: " + cart.join(", ") + " Total ₹" + total;
+
+  if(confirm("OK = Pay UPI\nCancel = WhatsApp Order")) {
+    window.location.href = upi;
+  } else {
+    window.open("https://wa.me/" + phone + "?text=" + encodeURIComponent(msg));
+  }
+}
+
+recommend();
+
+</script>
+
+</body>
+</html>
