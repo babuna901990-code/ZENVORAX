@@ -1,59 +1,106 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ZenvoraX</title>
 
 <style>
 body {
-  font-family: Arial;
-  margin: 0;
-  background: #f4fff4;
+  margin:0;
+  font-family: 'Segoe UI';
+  background:#f7f8fa;
 }
 
-header {
-  background: #0a8f3c;
-  color: white;
-  padding: 15px;
-  text-align: center;
+/* HEADER */
+.header {
+  background:white;
+  padding:10px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  box-shadow:0 2px 10px rgba(0,0,0,0.05);
 }
 
-.container {
-  padding: 15px;
+.search {
+  flex:1;
+  padding:10px;
+  border-radius:10px;
+  border:1px solid #ccc;
 }
 
+/* CATEGORY */
+.categories {
+  display:flex;
+  overflow-x:auto;
+  padding:10px;
+  gap:10px;
+}
+
+.cat {
+  background:white;
+  padding:10px 15px;
+  border-radius:20px;
+  white-space:nowrap;
+  box-shadow:0 2px 5px rgba(0,0,0,0.05);
+}
+
+/* PRODUCTS */
 .products {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 15px;
+  display:grid;
+  grid-template-columns: repeat(2,1fr);
+  gap:10px;
+  padding:10px;
 }
 
 .card {
-  background: white;
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  text-align: center;
+  background:white;
+  border-radius:15px;
+  padding:10px;
+  text-align:center;
+  box-shadow:0 3px 10px rgba(0,0,0,0.08);
+}
+
+.price {
+  font-weight:bold;
+  margin:5px 0;
 }
 
 button {
-  background: #0a8f3c;
-  color: white;
-  border: none;
-  padding: 10px;
-  margin-top: 10px;
-  border-radius: 5px;
+  background:#0a8f3c;
+  color:white;
+  border:none;
+  padding:8px;
+  border-radius:8px;
+  width:100%;
 }
 
+/* FLOAT CART */
 .cart {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  background: #0a8f3c;
-  color: white;
-  text-align: center;
-  padding: 15px;
+  position:fixed;
+  bottom:70px;
+  right:15px;
+  background:#0a8f3c;
+  color:white;
+  padding:15px;
+  border-radius:50%;
+  font-size:18px;
+}
+
+/* BOTTOM NAV */
+.nav {
+  position:fixed;
+  bottom:0;
+  width:100%;
+  background:white;
+  display:flex;
+  justify-content:space-around;
+  padding:10px;
+  box-shadow:0 -2px 10px rgba(0,0,0,0.1);
+}
+
+.nav div {
+  text-align:center;
+  font-size:12px;
 }
 
 </style>
@@ -61,104 +108,73 @@ button {
 
 <body>
 
-<header>
-  <h2>ZenvoraX</h2>
-  <p>Fresh Groceries Delivered Fast</p>
-</header>
-
-<div class="container">
-
-  <h3>🔥 Recommended</h3>
-  <div id="recommend"></div>
-
-  <h3>Products</h3>
-
-  <div class="products">
-
-    <div class="card">
-      🥔 Potato<br>₹10/kg
-      <button onclick="addToCart('Potato',25)">Add</button>
-    </div>
-
-    <div class="card">
-      🍅 Tomato<br>₹15/kg
-      <button onclick="addToCart('Tomato',35)">Add</button>
-    </div>
-
-    <div class="card">
-      🧅 Onion<br>₹20/kg
-      <button onclick="addToCart('Onion',30)">Add</button>
-    </div>
-
-    <div class="card">
-      🍌 Banana<br>₹40/kg
-      <button onclick="addToCart('Banana',40)">Add</button>
-    </div>
-
-  </div>
-
+<!-- HEADER -->
+<div class="header">
+  🛒 <b>ZenvoraX</b>
+  <input class="search" placeholder="Search vegetables...">
 </div>
 
+<!-- CATEGORY -->
+<div class="categories">
+  <div class="cat">🥦 Vegetables</div>
+  <div class="cat">🍎 Fruits</div>
+  <div class="cat">🥬 Leafy</div>
+</div>
+
+<!-- PRODUCTS -->
+<div id="products" class="products"></div>
+
+<!-- FLOAT CART -->
 <div class="cart" onclick="checkout()">
-  🛒 Cart: ₹<span id="total">0</span> (Tap to Order)
+₹<span id="total">0</span>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <div>🏠<br>Home</div>
+  <div>🛒<br>Cart</div>
+  <div>👤<br>Profile</div>
 </div>
 
 <script>
 
-let cart = [];
-let total = 0;
+let products = JSON.parse(localStorage.getItem("products")) || [
+{name:"Potato",price:10,emoji:"🥔"},
+{name:"Tomato",price:20,emoji:"🍅"},
+{name:"Onion",price:15,emoji:"🧅"},
+{name:"Banana",price:30,emoji:"🍌"}
+];
 
-// ADD TO CART
-function addToCart(item, price) {
-  cart.push(item);
-  total += price;
-  document.getElementById("total").innerText = total;
+let cart=[];
+let total=0;
 
-  // Save history (AI)
-  let history = JSON.parse(localStorage.getItem("history") || "[]");
-  history.push(item);
-  localStorage.setItem("history", JSON.stringify(history));
-
-  recommend();
+function loadProducts(){
+let html="";
+products.forEach((p,i)=>{
+html += `
+<div class="card">
+<div style="font-size:35px">${p.emoji}</div>
+<div>${p.name}</div>
+<div class="price">₹${p.price}</div>
+<button onclick="add(${i})">Add</button>
+</div>`;
+});
+document.getElementById("products").innerHTML = html;
 }
 
-// AI RECOMMEND
-function recommend() {
-  let history = JSON.parse(localStorage.getItem("history") || "[]");
-  let freq = {};
-
-  history.forEach(item => {
-    freq[item] = (freq[item] || 0) + 1;
-  });
-
-  let top = Object.keys(freq).sort((a,b) => freq[b] - freq[a])[0];
-
-  if(top) {
-    document.getElementById("recommend").innerHTML =
-      "<div class='card'>🔥 You may like " + top + "</div>";
-  }
+function add(i){
+cart.push(products[i].name);
+total += products[i].price;
+document.getElementById("total").innerText = total;
 }
 
-// CHECKOUT
-function checkout() {
-  if(cart.length === 0) {
-    alert("Cart empty");
-    return;
-  }
-
-  let phone = "918895690516"; // CHANGE NUMBER
-  let upi = "upi://pay?pa=YOURUPI@upi&pn=ZenvoraX&am=" + total;
-
-  let msg = "Order: " + cart.join(", ") + " Total ₹" + total;
-
-  if(confirm("OK = Pay UPI\nCancel = WhatsApp Order")) {
-    window.location.href = upi;
-  } else {
-    window.open("https://wa.me/" + phone + "?text=" + encodeURIComponent(msg));
-  }
+function checkout(){
+let phone="918895690516";
+let msg="Order: "+cart.join(", ")+" Total ₹"+total;
+window.open("https://wa.me/"+phone+"?text="+encodeURIComponent(msg));
 }
 
-recommend();
+loadProducts();
 
 </script>
 
